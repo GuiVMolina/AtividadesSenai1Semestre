@@ -1,10 +1,12 @@
 #include <Arduino.h>
 #include "BluetoothSerial.h"
 
+#define pinLed 2
 BluetoothSerial SerialBT;
 String mensagem = " ";
 
 // * ESP MASTER
+
 void setup() {
   Serial.begin(9600);
   SerialBT.begin("ESP32_MasterGG", true);
@@ -18,16 +20,18 @@ void setup() {
 }
 
 void loop(){
+  // * Aguarda 3 segundos
   unsigned long timeout = millis() + 3000;
-  while(millis() < timeout) // * Aguarda 3 segundos
-  {
-    if(SerialBT.available()){
+  while(millis() < timeout) {
+    if(SerialBT.available()) {
       mensagem = SerialBT.readStringUntil('\r');
       Serial.printf("Mensagem enviada: %s", mensagem);
       break; // * Sai do loop
     }
   }
 }
+
+// * ESP SLAVE
 
 // void setup() {
 //   Serial.begin(9600);

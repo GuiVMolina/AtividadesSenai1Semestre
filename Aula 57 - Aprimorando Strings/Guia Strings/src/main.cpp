@@ -4,6 +4,10 @@
 char letra[10] = {'P', 'A', 'L', 'A', 'V', 'R', 'A', '\0', '\0', '\0'};
 char letraConcatenada[10] = "PALAVRA";
 
+// char olaMundo[10] = "Ola Mundo";
+// char olaMundo[10] = {'O', 'l', 'a', ' ', 'M', 'u', 'n', 'd', 'o', '\0'};
+
+// A String é uma classe que facilita o uso do conjunto de caracteres
 String palavra = "PALAVRA";
 
 void setup() {
@@ -14,7 +18,7 @@ void setup() {
   // Comparando a string
   if (strcmp(letra, "SENAI") == 0) {}
 
-  // Comparando a string no 3º caractere
+  // Comparando a string até o 3º caractere
   if (strncmp(letra, "SENAI", 3) == 0) {}
 
   // Preenche a string com 'A'
@@ -60,6 +64,14 @@ void setup() {
   // Converte a string para float
   String valor2 = "123.45";
   float numero2 = valor2.toFloat();
+
+  // * EXEMPLO
+  String mensagem = "Valor = 50";
+  int tamanho = mensagem.length();
+  String valorString = mensagem.substring(8, tamanho);
+  int valorInt = valorString.toInt();
+  Serial.println(valorInt);
+
 }
 
 void loop() {}

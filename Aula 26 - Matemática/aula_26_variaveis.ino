@@ -1,8 +1,9 @@
 /*
-  Autor: Guilherme Vieira Molina
-  Projeto: Memórias
-  Descrição: Meu código em arduíno (C)
-  Data: 21/02/2025
+  Autores: Guilherme Vieira Molina
+           Giuliano Keler Chicarelli
+  Projeto: Variáveis
+  Descrição: Exercícios e exemplos sobre declaração e uso de variáveis no Arduino.
+  Data: 24/02/2025
 */
 
 // Declaração de variável

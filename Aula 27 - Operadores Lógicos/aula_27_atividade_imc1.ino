@@ -1,6 +1,7 @@
 /*
-  Autor: Guilherme Vieira Molina
-  Projeto: Operadores de condição
+  Autores: Guilherme Vieira Molina
+           Giuliano Keler Chicarelli
+  Projeto: Memórias
   Descrição: Meu código em arduíno (C)
   Data: 25/02/2025
 */

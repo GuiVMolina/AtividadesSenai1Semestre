@@ -1,5 +1,6 @@
 /*
-  Autor: Guilherme Vieira Molina
+  Autores: Guilherme Vieira Molina
+           Giuliano Keler Chicarelli
   Projeto: Memórias
   Descrição: Meu código em arduíno (C)
   Data: 21/02/2025

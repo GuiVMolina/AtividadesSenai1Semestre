@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <PubSubClient.h>
 #include <WiFi.h>
+#include <ArduinoJson.h>
 #include "internet.h"
 
 #define pinLed 2
@@ -10,7 +11,7 @@ PubSubClient client(espClient);
 
 bool estadoLed = false;
 bool modoPisca = false;
-float velocidadePisca = 500; // velocidade em ms
+float tempoEspera = 500; // velocidade em ms
 
 const char *mqtt_server = "broker.hivemq.com";
 const int mqtt_port = 1883;
@@ -40,6 +41,17 @@ void loop(){
   static unsigned long tempoAnteriorMsg = 0;
   unsigned long tempoAtual = millis();
 
+  JsonDocument doc;
+
+  doc["botao"] = digitalRead(4);
+  doc["msg"] = "OLA MUNDO";
+
+  String mensagem;
+  serializeJson(doc, mensagem);
+
+  Serial.println(mensagem);
+  client.publish(mqtt_topic_pub, mensagem.c_str());
+
   if(tempoAtual - tempoAnteriorMsg > 3000){
     client.publish(mqtt_topic_pub, "Olá Mundo");
     tempoAnteriorMsg = tempoAtual;
@@ -57,75 +69,22 @@ void callback(char *topic, byte *payLoad, unsigned int Length){
     mensagem += c;
   }
 
-  mensagem.toLowerCase();
-  mensagem.trim();
-
-  if (mensagem.equals("ligar") || mensagem.equals("liga")){
-    estadoLed = true;
-    modoPisca = false;
-    Serial.println("LED ligado");
-  }
-
-  else if (mensagem.equals("desligar") || mensagem.equals("desliga")){
-    estadoLed = false;
-    modoPisca = false;
-    Serial.println("LED desligado");
-  }
-
-  else if (mensagem.equals("piscar") || mensagem.equals("pisca")){
-    modoPisca = true;
-    Serial.println("LED piscando");
-  }
-
-  else if (mensagem.startsWith("vel ")){
-    String valorStr = mensagem.substring(4);
-    float novoValor = valorStr.toFloat();
-    if (novoValor > 0) {
-      velocidadePisca = novoValor * 1000;
-      Serial.println("Velocidade definida: " + String(velocidadePisca) + " ms");
-    } else {
-      Serial.println("Valor inválido para velocidade.");
-    }
-  }
-
-  else if (mensagem.equals("rapido")){
-    if (velocidadePisca > 100) {
-      velocidadePisca -= 100;
-      Serial.println("Aumentando a velocidade para: " + String(velocidadePisca) + " ms");
-    } else {
-      Serial.println("Velocidade já no máximo.");
-    }
-  }
-
-  else if (mensagem.equals("devagar")){
-    velocidadePisca += 100;
-    Serial.println("Diminuindo a velocidade para: " + String(velocidadePisca) + " ms");
-  }
-
-  else if (mensagem.equals("status")){
-    if (estadoLed) Serial.println("LED ligado");
-    else if (modoPisca) Serial.println("LED piscando");
-    else Serial.println("LED desligado");
-    Serial.println("Velocidade atual: " + String(velocidadePisca) + " ms");
-  }
-
-  else if (mensagem.equals("ajuda") || mensagem.equals("help")){
-    Serial.println("Comandos disponíveis:");
-    Serial.println("     liga - Liga o LED");
-    Serial.println("  desliga - Desliga o LED");
-    Serial.println("    pisca - Faz o LED piscar");
-    Serial.println("   rapido - Aumenta a velocidade do piscar");
-    Serial.println("  devagar - Diminui a velocidade do piscar");
-    Serial.println("vel <seg> - Define a velocidade em segundos (ex: vel 0.5)");
-    Serial.println("   status - Mostra o estado atual");
-    Serial.println("    ajuda - Mostra os comandos");
-  }
-
-  else {
-    Serial.println("Comando inválido. Digite 'ajuda' para ver os comandos disponíveis.");
-  }
+  JsonDocument doc;
+  char * mensagem 
+  deserializeJson(doc, mensagem);
 
   Serial.println(mensagem);
+  if(!doc["estadoLed"].isNull()){
+    estadoLed = doc["estadoLed"];
+  }
+
+  if(!doc["modoPisca"].isNull()){
+    modoPisca = doc["modoPisca"];
+  }
+
+  if(!doc["velocidade"].isNull()){
+    tempoEspera = doc["velocidade"];
+  }
 };
 
 void mqttConnect(){
@@ -149,7 +108,7 @@ void piscaLed(){
   unsigned long tempoAtual = millis();
 
   if(modoPisca){
-    if(tempoAtual - tempoAnteriorPisca > velocidadePisca){
+    if(tempoAtual - tempoAnteriorPisca > tempoEspera){
       estadoLed = !estadoLed;
       tempoAnteriorPisca = tempoAtual;
     }

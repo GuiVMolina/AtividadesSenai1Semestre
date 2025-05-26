@@ -2,16 +2,28 @@
 #include <PubSubClient.h>
 #include <WiFi.h>
 #include <ArduinoJson.h>
+#include <Bounce2.h>
+#include <ezTime.h>
+#include <DHT.h>
 #include "internet.h"
 
+#define pinBotao 0
 #define pinLed 2
+#define DHTPIN 4
+#define DHTTYPE DHT22
+DHT dht(DHTPIN, DHTTYPE);
 
 WiFiClient espClient;
 PubSubClient client(espClient);
+Bounce botao = Bounce();
+Timezone tempo;
 
+bool envioMqtt = false;
 bool estadoLed = false;
 bool modoPisca = false;
-float tempoEspera = 500; // velocidade em ms
+float velocidadePisca = 500; // velocidade em ms
+float velocidadeDelay = 1000; // velocidade em ms
+float hum, temp;
 
 const char *mqtt_server = "broker.hivemq.com";
 const int mqtt_port = 1883;
@@ -28,8 +40,21 @@ void setup(){
   conectaWiFi();
   pinMode(pinLed, OUTPUT);
 
+  // * Botão
+  pinMode(pinBotao, INPUT_PULLUP);
+  botao.attach(pinBotao);
+  botao.interval(25);
+
+  // * MQTT
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
+
+  // * ezTime
+  waitForSync();
+  tempo.setLocation("America/Sao_Paulo");
+
+  // * DHT22
+  dht.begin();
 }
 
 void loop(){
@@ -37,25 +62,59 @@ void loop(){
 
   if(!client.connected()) mqttConnect();
   client.loop();
+  botao.update();
 
   static unsigned long tempoAnteriorMsg = 0;
   unsigned long tempoAtual = millis();
 
   JsonDocument doc;
+  String mensagem = "";
 
-  doc["botao"] = digitalRead(4);
-  doc["msg"] = "OLA MUNDO";
+  if(tempoAtual - tempoAnteriorMsg > velocidadeDelay){
+    doc.clear();
+    serializeJson(doc, mensagem);
 
-  String mensagem;
-  serializeJson(doc, mensagem);
-
-  Serial.println(mensagem);
-  client.publish(mqtt_topic_pub, mensagem.c_str());
-
-  if(tempoAtual - tempoAnteriorMsg > 3000){
-    client.publish(mqtt_topic_pub, "Olá Mundo");
+    // * DHT22
+    hum = dht.readHumidity();
+    temp = dht.readTemperature();
+    doc["umidade"] = hum;
+    doc["temperatura"] = temp;
+    doc["timestamp"] = tempo.now();
+    doc["velocidadeDelay"] = velocidadeDelay;
+    serializeJson(doc, mensagem);
+    Serial.println(mensagem);
+    client.publish(mqtt_topic_pub, mensagem.c_str());
     tempoAnteriorMsg = tempoAtual;
   }
+  
+  if (botao.changed()){
+    doc["botao"] = botao.read();
+    doc["umidade"] = hum;
+    doc["temperatura"] = temp;
+    doc["timestamp"] = tempo.now();
+    doc["velocidadeDelay"] = velocidadeDelay;
+    envioMqtt = true;
+  }
+
+  if (envioMqtt){
+    serializeJson(doc, mensagem);
+    Serial.println(mensagem);
+    client.publish(mqtt_topic_pub, mensagem.c_str());
+    envioMqtt = false;
+  }
+
+  // if (botao.fell()) {
+  //   modoPisca = false;
+  //   estadoLed = !estadoLed;
+  //   digitalWrite(pinLed, estadoLed);
+
+  //   doc.clear();
+  //   doc["botao"] = 1;
+  //   doc["estadoLed"] = estadoLed;
+  //   serializeJson(doc, mensagem);
+  //   client.publish(mqtt_topic_pub, mensagem.c_str());
+  //   mensagem = "";
+  // }
 
   piscaLed();
 }
@@ -70,8 +129,7 @@ void callback(char *topic, byte *payLoad, unsigned int Length){
   }
 
   JsonDocument doc;
-  char * mensagem 
-  deserializeJson(doc, mensagem);
+  deserializeJson(doc, mensagem.c_str());
 
   Serial.println(mensagem);
   if(!doc["estadoLed"].isNull()){
@@ -82,8 +140,20 @@ void callback(char *topic, byte *payLoad, unsigned int Length){
     modoPisca = doc["modoPisca"];
   }
 
-  if(!doc["velocidade"].isNull()){
-    tempoEspera = doc["velocidade"];
+  if(!doc["velolcidadePisca"].isNull()){
+    velocidadePisca = doc["velocidadePisca"];
+  }
+  
+  if(!doc["velocidadeDelay"].isNull()){
+    velocidadeDelay = doc["velocidadeDelay"];
+  }
+
+  if(!doc["botao"].isNull()){
+    int botao = doc["botao"];
+    if(botao == 1){
+      estadoLed = !estadoLed;
+      digitalWrite(pinLed, estadoLed);
+    }
   }
 };
 
@@ -108,7 +178,7 @@ void piscaLed(){
   unsigned long tempoAtual = millis();
 
   if(modoPisca){
-    if(tempoAtual - tempoAnteriorPisca > tempoEspera){
+    if(tempoAtual - tempoAnteriorPisca > velocidadePisca){
       estadoLed = !estadoLed;
       tempoAnteriorPisca = tempoAtual;
     }

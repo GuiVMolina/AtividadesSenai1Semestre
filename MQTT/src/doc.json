@@ -1,0 +1,8 @@
+{
+    "botao": 0,
+    "msg": "OLA MUNDO",
+    "estadoLed": 0,
+    "modoPisca": 0,
+    "velocidadePisca": 500,
+    "velocidadeDelay": 1000
+}

@@ -1,0 +1,259 @@
+:root {
+    --color-white: #fff;
+    --color-black: #222;
+    --color-blue: #0078d4;
+    --color-blue-light: #eaf1fb;
+    --color-blue-lighter: #dbeafe;
+    --color-blue-dark: #1e3a8a;
+    --color-blue-code: #2563eb;
+    --color-gray-bg: #f4f8fb;
+    --color-gray-pre: #f3f6fa;
+}
+
+* {
+    font-family: 'Montserrat', Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: var(--color-black);
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background:
+        url('Fundo.png') center center/cover no-repeat,
+        linear-gradient(135deg, var(--color-blue), var(--color-blue-dark));
+}
+
+.container {
+    width: 90%;
+    max-width: 600px;
+    margin: 40px auto;
+    background: var(--color-white);
+    border-radius: 12px;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.25);
+    padding: 32px 24px 24px 24px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: fadeInUp 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.header {
+    background: linear-gradient(135deg, var(--color-blue), var(--color-blue-dark));
+    padding: 16px;
+    text-align: center;
+    border-radius: 8px 8px 0px 0px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    animation: fadeInDown 0.8s 0.1s backwards;
+}
+
+h1 {
+    color: var(--color-white);
+}
+
+.chat-box {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: var(--color-blue-light);
+    border-radius: 0px 0px 8px 8px;
+    margin-bottom: 18px;
+    min-height: 80px;
+    animation: fadeIn 1s 0.2s backwards;
+}
+
+.message {
+    max-width: 80%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    animation: fadeInMessage 0.7s;
+}
+
+.bot-message {
+    align-self: flex-start;
+    color: var(--color-blue-dark);
+    background-color: var(--color-blue-lighter);
+    border-radius: 6px;
+    padding: 10px 14px;
+    display: inline-block;
+    max-width: 90%;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.user-message {
+    align-self: flex-end;
+    color: var(--color-blue-dark);
+    background-color: var(--color-blue-lighter);
+    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    width: 100%;
+    outline: none;
+    transition: box-shadow 0.2s, border 0.2s, background 0.3s;
+    animation: fadeInInput 0.8s 0.3s backwards;
+}
+
+.user-message:focus {
+    box-shadow: 0 0 0 2px var(--color-blue);
+    border: 1.5px solid var(--color-blue);
+    background: var(--color-blue-light);
+}
+
+
+.input-container {
+    display: flex;
+    padding: 16px;
+    gap: 8px;
+    margin-bottom: 0;
+}
+
+input[type="text"] {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid var(--color-blue);
+    border-radius: 8px;
+    font-size: 1rem;
+    color: var(--color-blue-dark);
+    background: var(--color-blue-light);
+    outline: none;
+    transition: box-shadow 0.2s, border 0.2s, background 0.3s;
+}
+
+input[type="text"]::placeholder {
+    color: var(--color-blue-dark);
+    opacity: 0.7;
+}
+
+.sendButton {
+    background: var(--color-blue);
+    color: var(--color-white);
+    border: none;
+    border-radius: 6px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.15s, transform 0.1s;
+    animation: fadeInInput 0.8s 0.4s backwards;
+}
+
+.sendButton:hover {
+    background: var(--color-blue-dark);
+}
+
+.sendButton:active {
+    transform: scale(0.95);
+}
+
+.chat-box::-webkit-scrollbar{
+    width: 8px;
+}
+
+.chat-box::-webkit-scrollbar-thumb{
+    background: var(--color-blue-dark);
+    border-radius: 4px;
+}
+
+.chat-box::-webkit-scrollbar-track {
+    background: var(--color-blue);
+}
+
+.info {
+    background: var(--color-gray-bg);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 24px;
+}
+
+h2 {
+    color: var(--color-blue);
+    font-size: 1.2rem;
+    margin-top: 28px;
+    margin-bottom: 10px;
+}
+
+pre {
+    background: var(--color-gray-pre);
+    border-radius: 6px;
+    padding: 14px;
+    overflow-x: auto;
+    font-size: 1em;
+    margin-bottom: 0;
+}
+
+code {
+    font-family: 'Fira Mono', 'Consolas', monospace;
+    color: var(--color-blue-code);
+}
+
+ol {
+    padding-left: 20px;
+    margin-bottom: 18px;
+}
+
+li {
+    margin-bottom: 8px;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInMessage {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInInput {
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
